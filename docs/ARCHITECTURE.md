@@ -73,6 +73,58 @@ are not public semantic capabilities.
 The complete admission, compatibility, provenance, and trust rules are defined
 in `docs/SEMANTIC-CAPABILITY-CONTRACT.md`.
 
+## Capability family layer
+
+Contract v0.1 defines twelve canonical semantic capability families:
+
+- Analyze;
+- Summarize;
+- Classify;
+- Extract;
+- Compare;
+- Explain;
+- Identify;
+- Generate;
+- Propose;
+- Transform;
+- Synthesize;
+- Detect.
+
+They organize extension semantics; they are not generic inference entry points.
+A family may have zero, one, or many concrete capabilities.
+
+The intended hierarchy is:
+
+    SemanticCapability
+        |
+        v
+    Capability Family
+        |
+        v
+    Concrete Capability
+        |
+        v
+    optional Consumer Specialization
+
+For example:
+
+    AnalyzeCapability
+        -> AnalyzeLogCapability
+        -> AnalyzeLearningSourceCapability
+        -> consumer-specific analysis capability
+
+Family membership follows the primary consumer-facing semantic intent, not the
+internal steps taken by a model. The existing `analyze_log()` behavior maps to
+Analyze without changing its public M0 behavior.
+
+Consumer-specific specializations may remain outside the GiadaWare AI public
+catalog while inheriting the global read-only, provider-independent,
+side-effect-free, typed, validated, advisory, and explicit-failure contract.
+
+The semantic family hierarchy does not require a particular Python inheritance
+model. ABC, Protocol, generics, composition, or another minimal representation
+remain an implementation-design question for the extension API.
+
 ## Mutation boundary
 
 The AI layer MUST NOT directly:
