@@ -1,0 +1,348 @@
+# GiadaWare AI Semantic Capability Contract v0.1
+
+## Status
+
+Normative contract for the experimental `0.x` line.
+
+This document hardens the architectural rules established by M0 before the
+public capability surface expands.
+
+Canonical rule:
+
+> AI processes and proposes; software validates, decides, and executes.
+>
+> AI output is data, never authority.
+
+## 1. Semantic capability definition
+
+A semantic capability is a provider-independent, side-effect-free operation
+that expresses a reusable consumer intent, accepts explicitly defined input,
+and returns a validated typed result whose meaning does not depend on a
+specific model, prompt, provider, runtime, or transport.
+
+A public semantic capability MUST:
+
+- express consumer intent rather than provider mechanics;
+- avoid provider, model, runtime, prompt, and transport names in its public
+  semantics;
+- be read-only and side-effect-free;
+- define accepted input and a typed output contract;
+- define the meaning of every public field;
+- validate model output before returning it across the public library boundary;
+- remain implementable by conceptually different backends;
+- keep AI output advisory rather than authoritative;
+- define explicit failure semantics;
+- be justified by a real consumer or concrete proof of value rather than by
+  speculative API growth.
+
+Provider primitives such as `generate_json`, `chat`, `complete`, raw prompts,
+or `call_ollama` are backend mechanics, not semantic capabilities.
+
+## 2. Public contract versus implementation detail
+
+The public semantic contract includes:
+
+- capability names;
+- accepted input types and documented preconditions;
+- result type names;
+- result field names and types;
+- result field meaning;
+- public enumerations;
+- public exception hierarchy;
+- documented behavioural guarantees;
+- documented degradation guarantees.
+
+The following are implementation details unless explicitly promoted to the
+public contract:
+
+- prompt text and system messages;
+- provider request and response shapes;
+- sampling parameters;
+- model names;
+- transport protocol details;
+- retry implementation;
+- provider-specific SDK objects;
+- provider-specific structured-output envelopes.
+
+Consumers MUST NOT rely on implementation details for domain decisions.
+
+## 3. Result stability and inference nondeterminism
+
+Public result types are structural API contracts.
+
+Structural stability covers at least:
+
+- type names;
+- field names;
+- field types;
+- enumeration members;
+- documented field meaning.
+
+Structural stability does not imply inference determinism.
+
+Consumers MUST NOT depend on exact natural-language wording, ordering, or
+reproducibility of AI-derived content unless a capability explicitly guarantees
+those properties.
+
+A valid result may differ between invocations, models, providers, or runtime
+versions while still conforming to the same semantic result contract.
+
+## 4. Compatibility and versioning
+
+During the `0.x` line, breaking changes remain possible, but they MUST be
+intentional and documented.
+
+For a future stable `1.0` line, the following are breaking unless explicitly
+covered by a compatibility policy:
+
+- removing a public capability;
+- renaming a public capability;
+- removing or renaming a public result field;
+- changing the meaning of a public field;
+- removing enumeration members;
+- restricting inputs that were previously documented as valid;
+- changing documented failure semantics in a way that invalidates consumer
+  handling.
+
+The following are normally additive:
+
+- adding a backend;
+- adding a new capability;
+- adding a new consumer-specific extension point;
+- improving prompts or provider adaptation while preserving the semantic
+  contract.
+
+Capability names SHOULD NOT gain version suffixes such as `_v2` unless schema
+or semantic evolution truly requires a distinct public contract.
+
+## 5. Backend contract
+
+A backend implements inference transport and provider adaptation; it does not
+define application semantics.
+
+A backend MAY:
+
+- invoke a local or remote inference runtime or provider;
+- serialize requests and parse provider responses;
+- authenticate to a provider;
+- apply timeouts;
+- map provider failures into GiadaWare AI typed failures;
+- request or parse structured output;
+- expose technical observability metadata outside domain semantics;
+- perform safe retries when retry behaviour does not change semantic, privacy,
+  or cost guarantees.
+
+A backend MUST NOT:
+
+- mutate consumer or application state;
+- persist consumer domain data;
+- write or delete consumer files;
+- perform Git mutations;
+- publish content;
+- send messages;
+- perform transactions;
+- change permissions or application configuration;
+- invoke destructive operations;
+- bypass semantic result validation;
+- leak provider-specific objects into public semantic result types;
+- redefine the meaning of a capability.
+
+## 6. Failure taxonomy
+
+All public AI failures derive from `AIError`.
+
+The public failure model is:
+
+- `AIConfigurationError` — configuration is missing, invalid, or internally
+  inconsistent before successful inference can occur;
+- `AIUnavailableError` — the selected backend or provider cannot currently
+  provide the requested inference service;
+- `AITimeoutError` — the request exceeded the configured execution deadline;
+- `AIInvalidResponseError` — inference returned material that cannot satisfy
+  the semantic result contract after validation;
+- `AIUnsupportedCapabilityError` — the selected backend or composition cannot
+  provide the requested semantic capability.
+
+`AITimeoutError` is an availability failure and MAY be represented as a
+specialization of `AIUnavailableError`.
+
+Failures MUST NOT be silently converted into empty values, fabricated defaults,
+or success-looking semantic results.
+
+Capability-specific exceptions SHOULD NOT be added unless a real semantic need
+cannot be represented by the shared taxonomy.
+
+## 7. Fallback and degradation
+
+Fallback MUST NOT silently change semantic, privacy, locality, or cost
+guarantees.
+
+In particular, failure of a local backend MUST NOT silently redirect consumer
+input to a remote provider.
+
+Fallback is allowed only when explicitly configured at the composition
+boundary by the consuming application or its deployment configuration.
+
+A fallback policy MUST make the relevant change in guarantees visible to the
+composition layer.
+
+Failure of an optional AI capability MUST NOT fail the deterministic base
+product unless the consuming product explicitly declares that capability
+required.
+
+Degradation therefore means that the optional AI feature becomes unavailable or
+incomplete while deterministic product behaviour remains usable.
+
+## 8. Trust boundary and provenance
+
+GiadaWare AI distinguishes three layers:
+
+1. **Consumer input** — deterministic data supplied by the consumer.
+2. **Raw inference** — untrusted provider or model output.
+3. **Validated result** — typed AI-derived data that satisfies the public
+   semantic schema, optionally accompanied by trusted library-generated
+   technical metadata.
+
+Raw inference is never authority.
+
+Validation establishes structural and semantic-contract conformance; it does
+not establish factual truth, correctness, approval, safety, or domain validity
+beyond the guarantees explicitly defined by a capability.
+
+Trusted technical metadata, when exposed, MUST be generated by GiadaWare AI
+code and MUST NOT be copied from model output.
+
+Provider or model identity MUST remain outside consumer domain semantics.
+Technical identity MAY be exposed separately for observability, audit,
+debugging, or reproducibility, but consumers MUST NOT be required to use it for
+domain decisions.
+
+## 9. Library metadata versus consumer artifact provenance
+
+GiadaWare AI owns semantic result contracts and, where exposed, trusted
+technical invocation metadata.
+
+Consumer-owned artifact provenance remains outside GiadaWare AI.
+
+Examples of consumer responsibilities include:
+
+- filesystem paths;
+- input artifact names;
+- SHA-256 or other content identity;
+- pipeline-stage association;
+- restart and reuse semantics;
+- persistence format;
+- labels such as `authority = "ai-advisory"`;
+- publication, review, approval, or workflow state.
+
+These concerns MUST NOT be added to semantic result types merely because one
+consumer needs them.
+
+## 10. Deterministic metadata versus AI-derived fields
+
+Where GiadaWare AI exposes an envelope around a semantic result, the contract
+MUST distinguish trusted deterministic metadata from AI-derived data.
+
+Deterministic metadata is produced by library code and may include identifiers
+such as capability identity, schema identity, backend identity, model identity,
+or invocation metadata when those are intentionally exposed.
+
+AI-derived fields are values inferred or generated from consumer input, such as
+summaries, candidate causes, classifications, explanations, extracted claims,
+or suggestions.
+
+A model MUST NOT be permitted to self-assert trusted metadata.
+
+## 11. Authority exclusions
+
+GiadaWare AI semantic results MUST NOT directly represent application authority.
+
+Unless a future contract explicitly introduces a separately reviewed and
+bounded concept, result types MUST NOT use fields whose semantics imply that AI
+has approved, verified, decided, executed, published, or made a consumer action
+safe.
+
+Examples that require special scrutiny and are excluded by default include:
+
+- `approved`;
+- `review_status`;
+- `publication_ready`;
+- `verified_claims`;
+- `correctness`;
+- `safe_to_execute`;
+- `decision` as an authoritative outcome.
+
+A capability may describe evidence, candidates, uncertainty, limitations, or
+suggestions without crossing this boundary.
+
+## 12. Admission rule for new public capabilities
+
+A new capability MUST NOT enter the public GiadaWare AI capability catalog
+until all of the following can be answered yes:
+
+1. Does it express consumer intent rather than provider mechanics?
+2. Is it plausibly reusable beyond one narrow call site?
+3. Can its input and output be defined without naming a provider or model?
+4. Can its output be structurally validated?
+5. Is every public field semantically explainable?
+6. Is it read-only and side-effect-free?
+7. Can consumers treat the result as advisory data rather than authority?
+8. Are failure semantics explicit?
+9. Could conceptually different backends implement it?
+10. Is there a real consumer or concrete proof of value that justifies it?
+
+A consumer-specific capability may remain outside the GiadaWare AI public
+catalog while still reusing the semantic extension contract defined by the
+library.
+
+## 13. First candidate capability after contract hardening
+
+The first candidate capability after M0 is:
+
+    analyze_learning_source(text: str) -> LearningSourceAnalysis
+
+Its consumer requirement comes from GYTE Study Tools.
+
+The candidate result model is:
+
+    LearningSourceAnalysis
+        central_thesis
+        key_concepts
+        source_claims
+        practical_applications
+        limitations
+        review_questions
+
+Candidate source claims distinguish how a claim relates to the supplied source:
+
+- `EXPLICIT`;
+- `INFERRED`;
+- `UNCLEAR`.
+
+This classification describes the model's relationship between a candidate
+claim and the supplied source text. It does not imply independent truth
+verification or fact-checking.
+
+The first proof of value MUST NOT add fields such as `facts`,
+`verified_claims`, `correctness`, `review_status`, `approved`,
+`publication_ready`, `lesson`, or `recommended_final_text`.
+
+## 14. Relationship to capability families
+
+This contract defines the global invariants that every semantic capability and
+future capability family inherits.
+
+The canonical capability-family taxonomy is specified separately by the issue
+that follows this contract hardening work. Family definitions MUST NOT weaken
+any invariant in this document.
+
+## 15. Normative summary
+
+The public GiadaWare AI surface is a semantic API, not an LLM plumbing API.
+
+Consumers ask for a bounded semantic capability. Backends adapt inference
+providers. GiadaWare AI validates provider output before exposing typed
+AI-derived data. Consumers retain all application authority.
+
+No model, backend, prompt, runtime, transport, or consumer-specific persistence
+rule is allowed to redefine that boundary.

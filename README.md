@@ -47,7 +47,9 @@ M0 currently provides:
 - Local inference may be zero-cost, but free operation is not part of the API
   contract.
 
-See `docs/ARCHITECTURE.md` for the normative M0 boundary.
+See `docs/ARCHITECTURE.md` for the architectural boundary and
+`docs/SEMANTIC-CAPABILITY-CONTRACT.md` for the normative semantic capability
+contract.
 
 ## Example
 
