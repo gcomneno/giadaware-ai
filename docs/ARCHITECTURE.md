@@ -121,9 +121,14 @@ Consumer-specific specializations may remain outside the GiadaWare AI public
 catalog while inheriting the global read-only, provider-independent,
 side-effect-free, typed, validated, advisory, and explicit-failure contract.
 
-The semantic family hierarchy does not require a particular Python inheritance
-model. ABC, Protocol, generics, composition, or another minimal representation
-remain an implementation-design question for the extension API.
+The Python extension surface uses generic abstract base classes for semantic
+family membership, a `CapabilityFamily` enum for stable family identity, and
+composition with the structural `AIBackend` protocol for provider replacement.
+The family ABCs are intentionally thin: semantic inheritance is explicit without
+forcing provider plumbing or consumer-specific capabilities into the core
+package.
+
+The rationale and extension rules are documented in `docs/EXTENSION-API.md`.
 
 ## Mutation boundary
 
