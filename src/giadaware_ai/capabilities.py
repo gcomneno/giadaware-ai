@@ -1,4 +1,5 @@
 from .backend import AIBackend
+from .extension import AnalyzeCapability
 from .models import LogAnalysis
 from .validation import validate_log_analysis
 
@@ -29,23 +30,32 @@ possible_causes and suggested_next_steps must be arrays of strings.
 """.strip()
 
 
-class AICapabilities:
-    def __init__(self, backend: AIBackend) -> None:
-        self._backend = backend
+class AnalyzeLogCapability(AnalyzeCapability[str, LogAnalysis]):
+    """Concrete Analyze capability for technical logs."""
 
-    def analyze_log(self, log_text: str) -> LogAnalysis:
-        if not isinstance(log_text, str):
+    def execute(self, value: str) -> LogAnalysis:
+        if not isinstance(value, str):
             raise TypeError("log_text must be a string")
 
-        if not log_text.strip():
+        if not value.strip():
             raise ValueError("log_text must not be empty")
 
         raw = self._backend.generate_json(
             system_prompt=_LOG_ANALYSIS_SYSTEM_PROMPT,
             user_prompt=(
                 "Analyze the following technical log.\n\n"
-                f"{log_text}"
+                f"{value}"
             ),
         )
 
         return validate_log_analysis(raw)
+
+
+class AICapabilities:
+    """Backwards-compatible facade over concrete semantic capabilities."""
+
+    def __init__(self, backend: AIBackend) -> None:
+        self._analyze_log = AnalyzeLogCapability(backend)
+
+    def analyze_log(self, log_text: str) -> LogAnalysis:
+        return self._analyze_log.execute(log_text)
