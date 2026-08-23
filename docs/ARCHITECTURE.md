@@ -136,13 +136,17 @@ The consumer receives a validated typed `LogAnalysis`, not raw model output.
 
 All public AI failures derive from `AIError`.
 
-The shared taxonomy includes:
+The shared M0 exception surface includes:
 
 - `AIConfigurationError`;
 - `AIUnavailableError`;
-  - `AITimeoutError` as a specialized availability failure;
+- `AITimeoutError`;
 - `AIInvalidResponseError`;
 - `AIUnsupportedCapabilityError`.
+
+`AITimeoutError` is semantically an availability-related failure, but the M0
+Python API currently exposes it as a sibling of `AIUnavailableError`. Any future
+exception-hierarchy change during `0.x` must be intentional and documented.
 
 Failures must not be converted silently into empty or success-looking results.
 
