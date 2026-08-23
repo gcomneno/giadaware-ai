@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "giadaware-ai"
+version = "0.0.1"
+description = "Pluggable read-only AI capabilities for GiadaWare software"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+readme = "README.md"
+keywords = ["ai", "ollama", "local-ai", "giadaware"]
+
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Typing :: Typed",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+giadaware_ai = ["py.typed"]
+
+[project.optional-dependencies]
+dev = [
+    "build>=1.2",
+]
