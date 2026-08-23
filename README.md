@@ -3,7 +3,7 @@
 Experimental infrastructure library for pluggable, read-only AI capabilities
 in GiadaWare software.
 
-**Status: Experimental M0. The public API may change before a stable release.**
+**Status: Experimental 0.x. The public API may change before a stable release.**
 
 GiadaWare AI lets application code depend on semantic AI capabilities rather
 than specific models, providers, prompts, or transport protocols.
@@ -14,24 +14,36 @@ Core rule:
 
 AI output is data, never authority.
 
-## Current M0 capability
+## Current capabilities
 
-The first implemented capability is technical log analysis:
+Technical log analysis:
 
     analysis = ai.analyze_log(log_text)
 
 Consumers receive a validated, typed `LogAnalysis`, not raw model output.
 
-M0 currently provides:
+Learning-source analysis:
+
+    analysis = ai.analyze_learning_source(text)
+
+Consumers receive a validated, typed `LearningSourceAnalysis`. Source claims use
+`ClaimSupport.EXPLICIT`, `ClaimSupport.INFERRED`, or `ClaimSupport.UNCLEAR` to
+describe only the relationship between a candidate claim and the supplied
+source. This does not imply independent truth verification or fact-checking.
+
+The current public surface includes:
 
 - `AICapabilities`;
 - `AIBackend` protocol;
-- typed `LogAnalysis`;
-- `Severity`;
+- the semantic extension API and 12 canonical capability families;
+- `AnalyzeLogCapability`;
+- `AnalyzeLearningSourceCapability`;
+- typed `LogAnalysis` and `LearningSourceAnalysis` results;
+- `SourceClaim`, `ClaimSupport`, and `Severity`;
 - explicit AI failure types;
 - structured-output validation;
-- `OllamaBackend`;
-- deterministic tests using a fake backend;
+- `OllamaBackend` as one replaceable backend implementation;
+- deterministic tests using fake backends;
 - an opt-in real Ollama integration test.
 
 ## Architectural principles
@@ -47,9 +59,9 @@ M0 currently provides:
 - Local inference may be zero-cost, but free operation is not part of the API
   contract.
 
-See `docs/ARCHITECTURE.md` for the architectural boundary and
+See `docs/ARCHITECTURE.md` for the architectural boundary,
 `docs/SEMANTIC-CAPABILITY-CONTRACT.md` for the normative semantic capability
-contract.
+contract, and `docs/EXTENSION-API.md` for consumer specialization rules.
 
 ## Example
 
@@ -63,16 +75,20 @@ contract.
 
     ai = AICapabilities(backend)
 
-    result = ai.analyze_log(
+    log_result = ai.analyze_log(
         "ERROR Connection refused: database unavailable"
     )
 
-    print(result.summary)
-    print(result.severity)
+    source_result = ai.analyze_learning_source(
+        "A supplied transcript, article, or other learning source"
+    )
+
+    print(log_result.summary)
+    print(source_result.central_thesis)
 
 ## Installation
 
-M0 is not yet published to PyPI.
+GiadaWare AI is not yet published to PyPI.
 
 Build a wheel from a checkout:
 
@@ -93,9 +109,9 @@ The real Ollama integration test is opt-in:
     PYTHONPATH=src \
     python -m unittest discover -s tests/integration -v
 
-## Non-goals for M0
+## Non-goals
 
-M0 does not provide:
+GiadaWare AI does not provide:
 
 - autonomous agents;
 - mutation or application-state control;
