@@ -1,4 +1,4 @@
-from .capabilities import AICapabilities
+from .capabilities import AICapabilities, AnalyzeLogCapability
 from .errors import (
     AIConfigurationError,
     AIError,
@@ -6,6 +6,22 @@ from .errors import (
     AITimeoutError,
     AIUnavailableError,
     AIUnsupportedCapabilityError,
+)
+from .extension import (
+    AnalyzeCapability,
+    CapabilityFamily,
+    ClassifyCapability,
+    CompareCapability,
+    DetectCapability,
+    ExplainCapability,
+    ExtractCapability,
+    GenerateCapability,
+    IdentifyCapability,
+    ProposeCapability,
+    SemanticCapability,
+    SummarizeCapability,
+    SynthesizeCapability,
+    TransformCapability,
 )
 from .models import LogAnalysis, Severity
 
@@ -17,6 +33,21 @@ __all__ = [
     "AITimeoutError",
     "AIUnavailableError",
     "AIUnsupportedCapabilityError",
+    "AnalyzeCapability",
+    "AnalyzeLogCapability",
+    "CapabilityFamily",
+    "ClassifyCapability",
+    "CompareCapability",
+    "DetectCapability",
+    "ExplainCapability",
+    "ExtractCapability",
+    "GenerateCapability",
+    "IdentifyCapability",
     "LogAnalysis",
+    "ProposeCapability",
+    "SemanticCapability",
     "Severity",
+    "SummarizeCapability",
+    "SynthesizeCapability",
+    "TransformCapability",
 ]
