@@ -43,6 +43,8 @@ independent verification, approval, or editorial authority.
 Raw backend output is untrusted. GiadaWare AI validates all required fields and
 claim entries before returning `LearningSourceAnalysis`.
 
+GiadaWare AI validation means schema and semantic-contract conformance only.
+
 Missing fields, malformed claim objects, empty required strings, or unsupported
 `ClaimSupport` values raise `AIInvalidResponseError`.
 
@@ -52,6 +54,20 @@ Backend availability and timeout failures remain explicit and are not converted
 into empty or success-looking results.
 
 ## Authority boundary
+
+Learning-source analysis is advisory semantic data:
+
+    AI-derived learning analysis
+        != editorial candidate
+        != reviewed source
+        != review checkpoint
+        != publication authority
+
+Any promotion into editorial candidate, review, workflow, or publication state
+is consumer-owned and outside GiadaWare AI validation.
+
+GiadaWare AI validation does not mean factual verification, evidence
+acceptance, editorial acceptance, or workflow promotion.
 
 The capability does not expose fields for:
 

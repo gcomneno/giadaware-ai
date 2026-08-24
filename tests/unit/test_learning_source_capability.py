@@ -150,6 +150,25 @@ class AnalyzeLearningSourceTests(unittest.TestCase):
         self.assertFalse(hasattr(result, "authority"))
         self.assertFalse(hasattr(result, "sha256"))
 
+    def test_authority_oriented_fields_cannot_enter_semantic_result(self):
+        extra_fields = (
+            ("review_status", "approved"),
+            ("approved", True),
+            ("publication_ready", True),
+            ("verified_claims", ["A verified claim"]),
+            ("facts", ["A model-asserted fact"]),
+            ("confidence", 0.99),
+            ("checkpoint", {"id": "model-asserted-checkpoint"}),
+        )
+        response = dict(VALID_RESPONSE)
+        response.update(dict(extra_fields))
+
+        result = AnalyzeLearningSourceCapability(FakeBackend(response)).execute("source")
+
+        for field_name, _ in extra_fields:
+            with self.subTest(field_name=field_name):
+                self.assertFalse(hasattr(result, field_name))
+
 
 if __name__ == "__main__":
     unittest.main()
