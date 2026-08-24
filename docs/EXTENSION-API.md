@@ -101,6 +101,8 @@ Normative properties that remain subject to implementation review and tests incl
 
 A consumer specialization that violates those invariants is non-conforming even if Python allows it to instantiate.
 
+Subclassing or inheriting a semantic capability family grants semantic family membership only; it does not grant review authority, workflow promotion authority, persistence authority, publication authority, or consumer application authority.
+
 ## Core example
 
 `AnalyzeLogCapability` is the first built-in concrete capability mapped onto the extension API:

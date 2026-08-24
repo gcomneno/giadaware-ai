@@ -295,15 +295,14 @@ A consumer-specific capability may remain outside the GiadaWare AI public
 catalog while still reusing the semantic extension contract defined by the
 library.
 
-## 13. First candidate capability after contract hardening
+## 13. Learning-source analysis capability
 
-The first candidate capability after M0 is:
+`analyze_learning_source` is an implemented public semantic capability in the
+experimental `0.x` line:
 
     analyze_learning_source(text: str) -> LearningSourceAnalysis
 
-Its consumer requirement comes from GYTE Study Tools.
-
-The candidate result model is:
+The result model is:
 
     LearningSourceAnalysis
         central_thesis
@@ -313,7 +312,7 @@ The candidate result model is:
         limitations
         review_questions
 
-Candidate source claims distinguish how a claim relates to the supplied source:
+Source claims distinguish how a claim relates to the supplied source:
 
 - `EXPLICIT`;
 - `INFERRED`;
@@ -323,9 +322,22 @@ This classification describes the model's relationship between a candidate
 claim and the supplied source text. It does not imply independent truth
 verification or fact-checking.
 
-The first proof of value MUST NOT add fields such as `facts`,
-`verified_claims`, `correctness`, `review_status`, `approved`,
-`publication_ready`, `lesson`, or `recommended_final_text`.
+Validated means semantic-contract conforming. It does not mean factually
+verified, evidence accepted, editorially accepted, or promoted in a consumer
+workflow.
+
+Learning-source analysis remains below consumer-owned editorial, review, and
+publication authority:
+
+    AI-derived learning analysis
+        != editorial candidate
+        != reviewed source
+        != review checkpoint
+        != publication authority
+
+`LearningSourceAnalysis` MUST NOT add fields such as `facts`, `verified_claims`,
+`correctness`, `review_status`, `approved`, `publication_ready`, `lesson`, or
+`recommended_final_text`.
 
 ## 14. Canonical capability families
 
