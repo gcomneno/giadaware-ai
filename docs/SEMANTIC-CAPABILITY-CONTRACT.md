@@ -35,8 +35,8 @@ A public semantic capability MUST:
 - be justified by a real consumer or concrete proof of value rather than by
   speculative API growth.
 
-Provider primitives such as `generate_json`, `chat`, `complete`, raw prompts,
-or `call_ollama` are backend mechanics, not semantic capabilities.
+Provider primitives such as `generate_json`, `chat`, `complete`, and raw
+prompts are backend mechanics, not semantic capabilities.
 
 ## 2. Public contract versus implementation detail
 

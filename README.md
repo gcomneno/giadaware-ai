@@ -59,6 +59,42 @@ The current public surface includes:
 - Local inference may be zero-cost, but free operation is not part of the API
   contract.
 
+## Reference local runtime
+
+The reference local development and integration runtime is:
+
+    Ubuntu host
+        |
+        v
+    native Ollama service
+        |
+        v
+    http://localhost:11434
+        |
+        v
+    qwen2.5:1.5b-instruct
+
+Docker Compose is not required for this reference runtime.
+
+Install Ollama natively on Ubuntu using the official Linux installer, then pull
+the lightweight integration model:
+
+    curl -fsSL https://ollama.com/install.sh | sh
+    ollama pull qwen2.5:1.5b-instruct
+
+Verify the local API:
+
+    curl http://localhost:11434/api/tags
+
+The runtime and model are backend configuration details. Consumers continue to
+depend only on semantic GiadaWare AI capabilities.
+
+This reference path has been verified end-to-end on an Ubuntu CPU-only host:
+Ollama `0.32.15` running on `127.0.0.1:11434`,
+`qwen2.5:1.5b-instruct`, and the real opt-in GiadaWare AI integration test all
+completed successfully. This is verification evidence for the reference
+deployment, not a minimum hardware or version requirement.
+
 See `docs/ARCHITECTURE.md` for the architectural boundary,
 `docs/SEMANTIC-CAPABILITY-CONTRACT.md` for the normative semantic capability
 contract, and `docs/EXTENSION-API.md` for consumer specialization rules.
@@ -119,11 +155,7 @@ GiadaWare AI does not provide:
 - MCP;
 - RAG;
 - memory;
-- LibreChat integration;
 - a guarantee that AI output is correct.
-
-LibreChat was useful during the originating experiment but is not a dependency
-or part of the GiadaWare AI public contract.
 
 ## License
 
