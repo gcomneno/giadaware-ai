@@ -37,9 +37,31 @@ Architecture:
             v
     Local or remote inference provider
 
-LibreChat is not part of the public contract.
-
 Ollama is an infrastructure implementation detail.
+
+## Reference local deployment
+
+The current reference local development and integration deployment is:
+
+    Ubuntu host
+          |
+          v
+    native Ollama service
+          |
+          v
+    http://localhost:11434
+          |
+          v
+    lightweight local model
+
+The current real-integration model is `qwen2.5:1.5b-instruct`.
+
+Docker Compose is not required for this reference deployment. Containerized,
+remote, or alternative inference backends remain valid implementation choices
+provided they preserve the same semantic capability contract.
+
+This deployment choice does not make Ubuntu, Ollama, localhost, or the selected
+model part of consumer domain semantics.
 
 ## Normative principles
 
@@ -257,5 +279,4 @@ M0 proves:
 Contract hardening extends those guarantees without changing the fundamental M0
 boundary.
 
-Chat, agents, MCP, RAG, memory and LibreChat integration are explicitly outside
-M0 scope.
+Chat, agents, MCP, RAG and memory are explicitly outside M0 scope.

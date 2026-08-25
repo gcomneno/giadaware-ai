@@ -17,7 +17,7 @@ class OllamaBackend:
         self,
         *,
         model: str,
-        base_url: str = "http://ollama:11434",
+        base_url: str = "http://localhost:11434",
         timeout: float = 120.0,
     ) -> None:
         if not model.strip():
