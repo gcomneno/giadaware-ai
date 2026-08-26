@@ -17,6 +17,16 @@ RUNS_ENV = "GIADAWARE_AI_PROSE_SPIKE_RUNS"
 MODEL_ENV = "GIADAWARE_AI_PROSE_SPIKE_MODEL"
 BASE_URL_ENV = "GIADAWARE_AI_PROSE_SPIKE_BASE_URL"
 
+RESPONSE_SCHEMA: dict[str, object] = {
+    "type": "object",
+    "properties": {
+        "text": {"type": "string"},
+        "changed": {"type": "boolean"},
+    },
+    "required": ["text", "changed"],
+    "additionalProperties": False,
+}
+
 
 def load_corpus() -> list[dict[str, object]]:
     with CORPUS_PATH.open(encoding="utf-8") as handle:
@@ -87,6 +97,7 @@ def main() -> int:
                     backend.generate_json(
                         system_prompt=SYSTEM_PROMPT,
                         user_prompt=build_user_prompt(source),
+                        response_schema=RESPONSE_SCHEMA,
                     )
                 )
             except AIError as exc:
