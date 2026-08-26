@@ -21,6 +21,22 @@ class FakeBackend:
         return self.response
 
 
+class SchemaCapturingBackend:
+    def __init__(self, response):
+        self.response = response
+        self.response_schema = None
+
+    def generate_json(
+        self,
+        *,
+        system_prompt,
+        user_prompt,
+        response_schema=None,
+    ):
+        self.response_schema = response_schema
+        return self.response
+
+
 @dataclass(frozen=True, slots=True)
 class InvoiceAnalysis:
     reference: str
@@ -28,6 +44,15 @@ class InvoiceAnalysis:
 
 class AnalyzeInvoiceCapability(AnalyzeCapability[str, InvoiceAnalysis]):
     """Synthetic consumer-owned specialization used only for contract tests."""
+
+    _RESPONSE_SCHEMA = {
+        "type": "object",
+        "properties": {
+            "reference": {"type": "string"},
+        },
+        "required": ["reference"],
+        "additionalProperties": False,
+    }
 
     def execute(self, value: str) -> InvoiceAnalysis:
         if not isinstance(value, str) or not value.strip():
@@ -39,6 +64,7 @@ class AnalyzeInvoiceCapability(AnalyzeCapability[str, InvoiceAnalysis]):
                 "only a string field named reference."
             ),
             user_prompt=value,
+            response_schema=self._RESPONSE_SCHEMA,
         )
         reference = raw.get("reference")
         if not isinstance(reference, str) or not reference.strip():
@@ -101,14 +127,20 @@ class SemanticExtensionAPITests(unittest.TestCase):
 
         self.assertEqual(result.summary, "Database connection failed.")
 
-    def test_consumer_can_specialize_family_without_provider_coupling(self):
-        backend = FakeBackend({"reference": "INV-2026-0042"})
+    def test_consumer_can_request_schema_without_provider_coupling(self):
+        backend = SchemaCapturingBackend({"reference": "INV-2026-0042"})
         capability = AnalyzeInvoiceCapability(backend)
 
         result = capability.execute("Invoice reference INV-2026-0042")
 
         self.assertEqual(capability.family, CapabilityFamily.ANALYZE)
         self.assertEqual(result, InvoiceAnalysis(reference="INV-2026-0042"))
+        self.assertEqual(
+            backend.response_schema,
+            AnalyzeInvoiceCapability._RESPONSE_SCHEMA,
+        )
+        self.assertNotIn("ollama", repr(backend.response_schema).lower())
+        self.assertNotIn("format", backend.response_schema)
 
 
 if __name__ == "__main__":
