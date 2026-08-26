@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 from giadaware_ai.backends import OllamaBackend
+from giadaware_ai.errors import AIError
 
 from policy import SYSTEM_PROMPT, build_user_prompt
 
@@ -45,6 +46,17 @@ def preserved_anchors(text: str, anchors: list[str]) -> tuple[list[str], list[st
     return present, missing
 
 
+def base_record(case: dict[str, object], run_number: int, source: str) -> dict[str, object]:
+    return {
+        "case_id": case["id"],
+        "language": case["language"],
+        "category": case["category"],
+        "expectation": case["expectation"],
+        "run": run_number,
+        "original": source,
+    }
+
+
 def main() -> int:
     if os.environ.get(RUN_FLAG) != "1":
         raise SystemExit(
@@ -68,27 +80,53 @@ def main() -> int:
             raise ValueError(f"invalid anchors: {case.get('id')}")
 
         for run_number in range(1, runs + 1):
-            raw = backend.generate_json(
-                system_prompt=SYSTEM_PROMPT,
-                user_prompt=build_user_prompt(source),
-            )
-            candidate, model_changed = validate_candidate(dict(raw))
-            present, missing = preserved_anchors(candidate, anchors)
+            record = base_record(case, run_number, source)
 
-            record = {
-                "case_id": case["id"],
-                "language": case["language"],
-                "category": case["category"],
-                "expectation": case["expectation"],
-                "run": run_number,
-                "original": source,
-                "candidate": candidate,
-                "model_changed": model_changed,
-                "observed_changed": candidate != source,
-                "anchors_present": present,
-                "anchors_missing": missing,
-                "deterministic_gate": "PASS" if not missing else "FAIL",
-            }
+            try:
+                raw = dict(
+                    backend.generate_json(
+                        system_prompt=SYSTEM_PROMPT,
+                        user_prompt=build_user_prompt(source),
+                    )
+                )
+            except AIError as exc:
+                record.update(
+                    {
+                        "outcome": "PROVIDER_ERROR",
+                        "error_type": type(exc).__name__,
+                        "error": str(exc),
+                        "deterministic_gate": "FAIL",
+                    }
+                )
+                print(json.dumps(record, ensure_ascii=False))
+                continue
+
+            try:
+                candidate, model_changed = validate_candidate(raw)
+            except ValueError as exc:
+                record.update(
+                    {
+                        "outcome": "INVALID_CONTRACT",
+                        "raw_candidate": raw,
+                        "error": str(exc),
+                        "deterministic_gate": "FAIL",
+                    }
+                )
+                print(json.dumps(record, ensure_ascii=False))
+                continue
+
+            present, missing = preserved_anchors(candidate, anchors)
+            record.update(
+                {
+                    "outcome": "VALID_CONTRACT",
+                    "candidate": candidate,
+                    "model_changed": model_changed,
+                    "observed_changed": candidate != source,
+                    "anchors_present": present,
+                    "anchors_missing": missing,
+                    "deterministic_gate": "PASS" if not missing else "FAIL",
+                }
+            )
             print(json.dumps(record, ensure_ascii=False))
 
     return 0
