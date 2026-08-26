@@ -1,11 +1,13 @@
 import importlib.util
 import json
+import sys
 import unittest
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 POLICY_PATH = ROOT / "policy.py"
+RUNNER_PATH = ROOT / "run_spike.py"
 CORPUS_PATH = ROOT / "corpus.json"
 
 spec = importlib.util.spec_from_file_location("prose_spike_policy", POLICY_PATH)
@@ -13,6 +15,13 @@ if spec is None or spec.loader is None:
     raise RuntimeError("cannot load spike policy")
 policy = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(policy)
+
+sys.path.insert(0, str(ROOT))
+runner_spec = importlib.util.spec_from_file_location("prose_spike_runner", RUNNER_PATH)
+if runner_spec is None or runner_spec.loader is None:
+    raise RuntimeError("cannot load spike runner")
+runner = importlib.util.module_from_spec(runner_spec)
+runner_spec.loader.exec_module(runner)
 
 
 class ProseNaturalizationSpikeContractTests(unittest.TestCase):
@@ -34,6 +43,16 @@ class ProseNaturalizationSpikeContractTests(unittest.TestCase):
     def test_non_string_input_is_rejected(self) -> None:
         with self.assertRaises(TypeError):
             policy.build_user_prompt(123)
+
+    def test_candidate_requires_exact_contract(self) -> None:
+        with self.assertRaisesRegex(ValueError, "exactly text and changed"):
+            runner.validate_candidate({"text": "ok", "changed": True, "extra": 1})
+
+    def test_candidate_accepts_exact_contract(self) -> None:
+        self.assertEqual(
+            ("rewritten", True),
+            runner.validate_candidate({"text": "rewritten", "changed": True}),
+        )
 
     def test_corpus_has_required_bilingual_categories(self) -> None:
         with CORPUS_PATH.open(encoding="utf-8") as handle:
