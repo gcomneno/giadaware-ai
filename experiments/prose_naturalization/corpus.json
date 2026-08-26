@@ -1,0 +1,82 @@
+[
+  {
+    "id": "it-natural",
+    "language": "it",
+    "category": "natural",
+    "text": "Sono arrivato in stazione dieci minuti prima del treno. Il bar era quasi vuoto, così ho preso un caffè e ho aspettato vicino al binario 4. Non c'era molto altro da fare.",
+    "anchors": ["dieci minuti", "binario 4"],
+    "expectation": "little_or_no_change"
+  },
+  {
+    "id": "en-natural",
+    "language": "en",
+    "category": "natural",
+    "text": "I got to the station ten minutes before the train. The cafe was nearly empty, so I bought a coffee and waited by platform 4. There was not much else to do.",
+    "anchors": ["ten minutes", "platform 4"],
+    "expectation": "little_or_no_change"
+  },
+  {
+    "id": "it-formulaic",
+    "language": "it",
+    "category": "formulaic",
+    "text": "Inoltre, questa soluzione rappresenta un passo fondamentale nel panorama in continua evoluzione dello sviluppo software, sottolineando l'importanza cruciale di un approccio robusto, innovativo e orientato al futuro. In conclusione, il futuro appare promettente.",
+    "anchors": [],
+    "expectation": "meaningful_change"
+  },
+  {
+    "id": "en-formulaic",
+    "language": "en",
+    "category": "formulaic",
+    "text": "Additionally, this solution represents a pivotal step in the ever-evolving software development landscape, underscoring the crucial importance of a robust, innovative, and future-focused approach. In conclusion, the future looks promising.",
+    "anchors": [],
+    "expectation": "meaningful_change"
+  },
+  {
+    "id": "it-reviewed",
+    "language": "it",
+    "category": "manually_reviewed",
+    "text": "Il servizio valida la risposta del modello prima di restituirla all'applicazione. Il modello propone dati; il software decide se usarli. Questo confine evita di trattare l'output AI come autorità.",
+    "anchors": ["modello", "software", "output AI"],
+    "expectation": "little_or_no_change"
+  },
+  {
+    "id": "en-reviewed",
+    "language": "en",
+    "category": "manually_reviewed",
+    "text": "The service validates model output before returning it to the application. The model proposes data; software decides whether to use it. This boundary prevents AI output from being treated as authority.",
+    "anchors": ["model", "software", "AI output"],
+    "expectation": "little_or_no_change"
+  },
+  {
+    "id": "it-fact-sensitive",
+    "language": "it",
+    "category": "fact_sensitive",
+    "text": "Il 25 agosto 2026 GiadaWare AI usava Ollama 0.32.15 su http://localhost:11434 con il modello qwen2.5:1.5b-instruct. Il test di integrazione reale risultava completato con successo in modalità CPU-only.",
+    "anchors": ["25 agosto 2026", "Ollama 0.32.15", "http://localhost:11434", "qwen2.5:1.5b-instruct", "CPU-only"],
+    "expectation": "preserve_facts"
+  },
+  {
+    "id": "en-fact-sensitive",
+    "language": "en",
+    "category": "fact_sensitive",
+    "text": "On August 25, 2026, GiadaWare AI used Ollama 0.32.15 at http://localhost:11434 with the qwen2.5:1.5b-instruct model. The real integration test had completed successfully in CPU-only mode.",
+    "anchors": ["August 25, 2026", "Ollama 0.32.15", "http://localhost:11434", "qwen2.5:1.5b-instruct", "CPU-only"],
+    "expectation": "preserve_facts"
+  },
+  {
+    "id": "it-technical",
+    "language": "it",
+    "category": "technical_schematic",
+    "text": "Precondizioni:\n- branch: main\n- working tree: pulito\n- endpoint: http://localhost:11434\n- timeout: 120 s\n\nSe l'endpoint non risponde, il test deve fallire senza fallback remoto.",
+    "anchors": ["main", "pulito", "http://localhost:11434", "120 s", "senza fallback remoto"],
+    "expectation": "little_or_no_change"
+  },
+  {
+    "id": "en-technical",
+    "language": "en",
+    "category": "technical_schematic",
+    "text": "Preconditions:\n- branch: main\n- working tree: clean\n- endpoint: http://localhost:11434\n- timeout: 120 s\n\nIf the endpoint does not respond, the test must fail without remote fallback.",
+    "anchors": ["main", "clean", "http://localhost:11434", "120 s", "without remote fallback"],
+    "expectation": "little_or_no_change"
+  }
+]
