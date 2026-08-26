@@ -54,6 +54,15 @@ class ProseNaturalizationSpikeContractTests(unittest.TestCase):
             runner.validate_candidate({"text": "rewritten", "changed": True}),
         )
 
+    def test_response_schema_requires_exact_contract(self) -> None:
+        self.assertEqual("object", runner.RESPONSE_SCHEMA["type"])
+        self.assertEqual(["text", "changed"], runner.RESPONSE_SCHEMA["required"])
+        self.assertFalse(runner.RESPONSE_SCHEMA["additionalProperties"])
+        properties = runner.RESPONSE_SCHEMA["properties"]
+        self.assertEqual({"text", "changed"}, set(properties))
+        self.assertEqual({"type": "string"}, properties["text"])
+        self.assertEqual({"type": "boolean"}, properties["changed"])
+
     def test_corpus_has_required_bilingual_categories(self) -> None:
         with CORPUS_PATH.open(encoding="utf-8") as handle:
             corpus = json.load(handle)
