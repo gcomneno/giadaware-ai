@@ -39,11 +39,26 @@ class OllamaBackend:
         *,
         system_prompt: str,
         user_prompt: str,
+        response_schema: Mapping[str, object] | None = None,
     ) -> Mapping[str, object]:
+        if response_schema is not None and not isinstance(
+            response_schema,
+            Mapping,
+        ):
+            raise AIConfigurationError(
+                "response_schema must be a mapping"
+            )
+
+        response_format: str | dict[str, object]
+        if response_schema is None:
+            response_format = "json"
+        else:
+            response_format = dict(response_schema)
+
         payload = {
             "model": self._model,
             "stream": False,
-            "format": "json",
+            "format": response_format,
             "messages": [
                 {
                     "role": "system",
@@ -56,9 +71,16 @@ class OllamaBackend:
             ],
         }
 
+        try:
+            request_data = json.dumps(payload).encode("utf-8")
+        except (TypeError, ValueError) as exc:
+            raise AIConfigurationError(
+                "response_schema must be JSON-serializable"
+            ) from exc
+
         request = urllib.request.Request(
             self._url,
-            data=json.dumps(payload).encode("utf-8"),
+            data=request_data,
             headers={
                 "Content-Type": "application/json",
             },

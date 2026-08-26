@@ -34,7 +34,8 @@ source. This does not imply independent truth verification or fact-checking.
 The current public surface includes:
 
 - `AICapabilities`;
-- `AIBackend` protocol;
+- `AIBackend` protocol, including optional provider-independent JSON Schema
+  constraints for JSON-object generation;
 - the semantic extension API and 12 canonical capability families;
 - `AnalyzeLogCapability`;
 - `AnalyzeLearningSourceCapability`;
@@ -44,7 +45,7 @@ The current public surface includes:
 - structured-output validation;
 - `OllamaBackend` as one replaceable backend implementation;
 - deterministic tests using fake backends;
-- an opt-in real Ollama integration test.
+- opt-in real Ollama integration tests.
 
 ## Architectural principles
 
@@ -58,6 +59,8 @@ The current public surface includes:
 - Local-first does not mean local-only.
 - Local inference may be zero-cost, but free operation is not part of the API
   contract.
+- Schema-constrained output improves structure but does not grant application
+  authority or canonical status.
 
 ## Reference local runtime
 
@@ -96,8 +99,10 @@ completed successfully. This is verification evidence for the reference
 deployment, not a minimum hardware or version requirement.
 
 See `docs/ARCHITECTURE.md` for the architectural boundary,
-`docs/SEMANTIC-CAPABILITY-CONTRACT.md` for the normative semantic capability
-contract, and `docs/EXTENSION-API.md` for consumer specialization rules.
+`docs/BACKEND-CONTRACT.md` for the provider-independent backend primitive and
+schema-constrained JSON rules, `docs/SEMANTIC-CAPABILITY-CONTRACT.md` for the
+normative semantic capability contract, and `docs/EXTENSION-API.md` for
+consumer specialization rules.
 
 ## Example
 
@@ -139,7 +144,7 @@ Run deterministic unit tests without an AI runtime:
 
     PYTHONPATH=src python -m unittest discover -s tests/unit -v
 
-The real Ollama integration test is opt-in:
+The real Ollama integration tests are opt-in:
 
     GIADAWARE_AI_RUN_INTEGRATION=1 \
     PYTHONPATH=src \
