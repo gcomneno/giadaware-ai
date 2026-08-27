@@ -10,6 +10,10 @@ Can the current reference model perform a bounded prose transformation that redu
 
 The experiment studies ideas found during a static audit of `blader/humanizer` at commit `e2e92e7b4b8229253ed5c8e81dc65463fdeddda5`, but it does not copy, load, install, execute, or depend on that project or its `SKILL.md`.
 
+The canonical research/provenance record is:
+
+`docs/research/prose-naturalization-upstream-audit.md`
+
 The internal policy in this directory is independently written for the GiadaWare AI semantic contract.
 
 ## Architectural boundary
