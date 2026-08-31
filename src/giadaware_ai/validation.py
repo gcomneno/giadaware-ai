@@ -7,6 +7,7 @@ from .models import (
     LogAnalysis,
     Severity,
     SourceClaim,
+    TranslationResult,
 )
 
 
@@ -125,4 +126,31 @@ def validate_learning_source_analysis(
         ),
         limitations=_require_string_list(data, "limitations"),
         review_questions=_require_string_list(data, "review_questions"),
+    )
+
+
+def validate_translation_result(
+    data: Mapping[str, object],
+    *,
+    source_language: str,
+    target_language: str,
+) -> TranslationResult:
+    translated_text = _require_string(data, "translated_text")
+    returned_source = _require_string(data, "source_language")
+    returned_target = _require_string(data, "target_language")
+
+    if returned_source != source_language:
+        raise AIInvalidResponseError(
+            "translation result source_language does not match request"
+        )
+
+    if returned_target != target_language:
+        raise AIInvalidResponseError(
+            "translation result target_language does not match request"
+        )
+
+    return TranslationResult(
+        translated_text=translated_text,
+        source_language=returned_source,
+        target_language=returned_target,
     )

@@ -1,9 +1,15 @@
 from .backend import AIBackend
-from .extension import AnalyzeCapability
-from .models import LearningSourceAnalysis, LogAnalysis
+from .extension import AnalyzeCapability, TransformCapability
+from .models import (
+    LearningSourceAnalysis,
+    LogAnalysis,
+    TranslationRequest,
+    TranslationResult,
+)
 from .validation import (
     validate_learning_source_analysis,
     validate_log_analysis,
+    validate_translation_result,
 )
 
 
@@ -69,6 +75,21 @@ text. It does not mean that the claim is true or independently verified.
 """.strip()
 
 
+_TRANSLATION_SYSTEM_PROMPT = """
+You are a translation capability.
+
+Translate the supplied text from the explicit source language to the explicit
+target language while preserving its meaning.
+
+You MUST NOT summarize, editorially rewrite, enrich, fact-correct, or add factual
+content. Preserve names, numbers, dates, quantities, technical terms, quotations,
+negation, uncertainty, and causal relationships. Preserve formatting such as
+paragraph boundaries, lists, Markdown, and line breaks where practical.
+
+Return only the requested structured translation result.
+""".strip()
+
+
 class AnalyzeLogCapability(AnalyzeCapability[str, LogAnalysis]):
     """Concrete Analyze capability for technical logs."""
 
@@ -113,15 +134,92 @@ class AnalyzeLearningSourceCapability(
         return validate_learning_source_analysis(raw)
 
 
+class TranslateTextCapability(
+    TransformCapability[TranslationRequest, TranslationResult]
+):
+    """Translate text without provider coupling or editorial authority."""
+
+    def execute(self, value: TranslationRequest) -> TranslationResult:
+        if not isinstance(value, TranslationRequest):
+            raise TypeError("value must be a TranslationRequest")
+
+        if not value.text.strip():
+            raise ValueError("translation text must not be empty")
+
+        source_language = value.source_language.strip()
+        target_language = value.target_language.strip()
+
+        if not source_language:
+            raise ValueError("source_language must not be empty")
+        if not target_language:
+            raise ValueError("target_language must not be empty")
+        if source_language.casefold() == target_language.casefold():
+            raise ValueError("source_language and target_language must differ")
+
+        response_schema: dict[str, object] = {
+            "type": "object",
+            "properties": {
+                "translated_text": {"type": "string"},
+                "source_language": {
+                    "type": "string",
+                    "const": source_language,
+                },
+                "target_language": {
+                    "type": "string",
+                    "const": target_language,
+                },
+            },
+            "required": [
+                "translated_text",
+                "source_language",
+                "target_language",
+            ],
+            "additionalProperties": False,
+        }
+
+        raw = self._backend.generate_json(
+            system_prompt=_TRANSLATION_SYSTEM_PROMPT,
+            user_prompt=(
+                f"Source language: {source_language}\n"
+                f"Target language: {target_language}\n\n"
+                "Text to translate:\n"
+                f"{value.text}"
+            ),
+            response_schema=response_schema,
+        )
+
+        return validate_translation_result(
+            raw,
+            source_language=source_language,
+            target_language=target_language,
+        )
+
+
 class AICapabilities:
     """Backwards-compatible facade over concrete semantic capabilities."""
 
     def __init__(self, backend: AIBackend) -> None:
         self._analyze_log = AnalyzeLogCapability(backend)
         self._analyze_learning_source = AnalyzeLearningSourceCapability(backend)
+        self._translate_text = TranslateTextCapability(backend)
 
     def analyze_log(self, log_text: str) -> LogAnalysis:
         return self._analyze_log.execute(log_text)
 
     def analyze_learning_source(self, text: str) -> LearningSourceAnalysis:
         return self._analyze_learning_source.execute(text)
+
+    def translate_text(
+        self,
+        text: str,
+        *,
+        source_language: str,
+        target_language: str,
+    ) -> TranslationResult:
+        return self._translate_text.execute(
+            TranslationRequest(
+                text=text,
+                source_language=source_language,
+                target_language=target_language,
+            )
+        )

@@ -2,6 +2,7 @@ from .capabilities import (
     AICapabilities,
     AnalyzeLearningSourceCapability,
     AnalyzeLogCapability,
+    TranslateTextCapability,
 )
 from .errors import (
     AIConfigurationError,
@@ -33,6 +34,8 @@ from .models import (
     LogAnalysis,
     Severity,
     SourceClaim,
+    TranslationRequest,
+    TranslationResult,
 )
 
 __all__ = [
@@ -64,4 +67,7 @@ __all__ = [
     "SummarizeCapability",
     "SynthesizeCapability",
     "TransformCapability",
+    "TranslateTextCapability",
+    "TranslationRequest",
+    "TranslationResult",
 ]
