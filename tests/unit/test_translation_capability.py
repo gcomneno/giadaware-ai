@@ -86,6 +86,26 @@ class TranslationCapabilityTests(unittest.TestCase):
 
         self.assertEqual(result.translated_text, "Buongiorno.")
 
+    def test_preserves_source_text_exactly_for_backend_input(self):
+        source = "  First line.\n\n- item\n"
+        backend = CapturingBackend(
+            {
+                "translated_text": "  Prima riga.\n\n- elemento\n",
+                "source_language": "English",
+                "target_language": "Italian",
+            }
+        )
+
+        TranslateTextCapability(backend).execute(
+            TranslationRequest(
+                text=source,
+                source_language="English",
+                target_language="Italian",
+            )
+        )
+
+        self.assertTrue(backend.user_prompt.endswith(source))
+
     def test_rejects_language_identity_drift(self):
         backend = CapturingBackend(
             {
