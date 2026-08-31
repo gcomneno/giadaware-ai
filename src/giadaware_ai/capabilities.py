@@ -143,12 +143,12 @@ class TranslateTextCapability(
         if not isinstance(value, TranslationRequest):
             raise TypeError("value must be a TranslationRequest")
 
-        text = value.text.strip()
+        if not value.text.strip():
+            raise ValueError("translation text must not be empty")
+
         source_language = value.source_language.strip()
         target_language = value.target_language.strip()
 
-        if not text:
-            raise ValueError("translation text must not be empty")
         if not source_language:
             raise ValueError("source_language must not be empty")
         if not target_language:
@@ -183,7 +183,7 @@ class TranslateTextCapability(
                 f"Source language: {source_language}\n"
                 f"Target language: {target_language}\n\n"
                 "Text to translate:\n"
-                f"{text}"
+                f"{value.text}"
             ),
             response_schema=response_schema,
         )
