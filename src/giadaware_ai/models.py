@@ -39,3 +39,17 @@ class LearningSourceAnalysis:
     practical_applications: tuple[str, ...]
     limitations: tuple[str, ...]
     review_questions: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class TranslationRequest:
+    text: str
+    source_language: str
+    target_language: str
+
+
+@dataclass(frozen=True, slots=True)
+class TranslationResult:
+    translated_text: str
+    source_language: str
+    target_language: str
