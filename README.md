@@ -31,6 +31,19 @@ Consumers receive a validated, typed `LearningSourceAnalysis`. Source claims use
 describe only the relationship between a candidate claim and the supplied
 source. This does not imply independent truth verification or fact-checking.
 
+Provider-independent text translation:
+
+    result = ai.translate_text(
+        "Hello world.",
+        source_language="English",
+        target_language="Italian",
+    )
+
+Consumers receive a typed `TranslationResult`. Translation semantics require
+meaning preservation and exclude implicit summarization, editorial rewriting,
+enrichment, and domain correction. Product-level localization remains a
+consumer responsibility.
+
 The current public surface includes:
 
 - `AICapabilities`;
@@ -39,7 +52,9 @@ The current public surface includes:
 - the semantic extension API and 12 canonical capability families;
 - `AnalyzeLogCapability`;
 - `AnalyzeLearningSourceCapability`;
-- typed `LogAnalysis` and `LearningSourceAnalysis` results;
+- `TranslateTextCapability`;
+- typed `LogAnalysis`, `LearningSourceAnalysis`, `TranslationRequest`, and
+  `TranslationResult` values;
 - `SourceClaim`, `ClaimSupport`, and `Severity`;
 - explicit AI failure types;
 - structured-output validation;
@@ -61,6 +76,8 @@ The current public surface includes:
   contract.
 - Schema-constrained output improves structure but does not grant application
   authority or canonical status.
+- Defining a capability does not automatically qualify every provider/model
+  composition to perform it correctly.
 
 ## Reference local runtime
 
@@ -96,12 +113,14 @@ This reference path has been verified end-to-end on an Ubuntu CPU-only host:
 Ollama `0.32.15` running on `127.0.0.1:11434`,
 `qwen2.5:1.5b-instruct`, and the real opt-in GiadaWare AI integration test all
 completed successfully. This is verification evidence for the reference
-deployment, not a minimum hardware or version requirement.
+deployment, not a minimum hardware or version requirement and not automatic
+qualification for every semantic capability.
 
 See `docs/ARCHITECTURE.md` for the architectural boundary,
 `docs/BACKEND-CONTRACT.md` for the provider-independent backend primitive and
-schema-constrained JSON rules, `docs/SEMANTIC-CAPABILITY-CONTRACT.md` for the
-normative semantic capability contract, and `docs/EXTENSION-API.md` for
+schema-constrained JSON rules, `docs/TRANSLATION-CONTRACT.md` for translation
+semantics and localization boundaries, `docs/SEMANTIC-CAPABILITY-CONTRACT.md`
+for the normative semantic capability contract, and `docs/EXTENSION-API.md` for
 consumer specialization rules.
 
 ## Example
@@ -160,6 +179,7 @@ GiadaWare AI does not provide:
 - MCP;
 - RAG;
 - memory;
+- product-level localization policy;
 - a guarantee that AI output is correct.
 
 ## License
