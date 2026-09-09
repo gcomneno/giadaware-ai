@@ -53,6 +53,8 @@ The current public surface includes:
 - `AnalyzeLogCapability`;
 - `AnalyzeLearningSourceCapability`;
 - `TranslateTextCapability`;
+- `SemanticReadQueryInterpreter` with typed, versioned consumer contexts,
+  explicit concepts, relationships, limits and traceable grounding;
 - typed `LogAnalysis`, `LearningSourceAnalysis`, `TranslationRequest`, and
   `TranslationResult` values;
 - `SourceClaim`, `ClaimSupport`, and `Severity`;
@@ -120,8 +122,9 @@ See `docs/ARCHITECTURE.md` for the architectural boundary,
 `docs/BACKEND-CONTRACT.md` for the provider-independent backend primitive and
 schema-constrained JSON rules, `docs/TRANSLATION-CONTRACT.md` for translation
 semantics and localization boundaries, `docs/SEMANTIC-CAPABILITY-CONTRACT.md`
-for the normative semantic capability contract, and `docs/EXTENSION-API.md` for
-consumer specialization rules.
+for the normative semantic capability contract, `docs/SEMANTIC-READ-QUERY.md`
+for semantic read-query configuration, trust and qualification boundaries, and
+`docs/EXTENSION-API.md` for consumer specialization rules.
 
 ## Example
 
