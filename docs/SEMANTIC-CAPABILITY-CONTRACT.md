@@ -576,3 +576,66 @@ layer.
 
 No model, backend, prompt, runtime, transport, capability family, or
 consumer-specific persistence rule is allowed to redefine that boundary.
+
+## 16. Semantic read-query interpretation
+
+`SemanticReadQueryInterpreter` is an experimental public
+`TransformCapability`. It interprets a natural-language request only against a
+typed, versioned semantic context supplied by the consumer. The context
+explicitly declares readable relations and columns, domain concepts and
+synonyms, validated relationship endpoints, semantic rules, examples, allowed
+query features and positive result/relation limits.
+
+The capability returns one of three explicit outcomes:
+
+- `accepted`;
+- `unsupported`;
+- `ambiguous`.
+
+`unsupported` and `ambiguous` are normative fail-closed rejection outcomes.
+They MUST NOT contain candidate query data and MUST NOT be executed,
+approximated or completed by a consumer. Only `accepted` may proceed to
+independent consumer-owned validation and authorization gates.
+
+Consumer-declared deterministic defaults MAY resolve omitted selectors without
+creating ambiguity. Such defaults MUST belong to the supplied semantic context;
+the interpreter MUST NOT invent undeclared defaults.
+
+An accepted candidate remains untrusted AI-derived data. The status does not
+authorize execution and does not establish SQL safety, database validity,
+semantic completeness or factual correctness.
+
+GiadaWare AI MUST NOT:
+
+- execute the candidate query;
+- connect to a consumer database;
+- acquire consumer-domain semantics outside the supplied context;
+- convert mutation, administration, prediction or advice into a read query;
+- claim that schema-constrained output is safe or authoritative.
+
+Trusted context identity, revision and request language are inserted by library
+code rather than copied from model output.
+
+Every accepted grounding entry MUST identify an exact fragment present in the
+candidate query and its semantic field. Its source MUST be either an exact
+fragment of the original request or an exact rule from the validated consumer
+context. All exact and verbatim comparisons are case-sensitive.
+
+Every returned parameter MUST have exactly one grounding entry. That entry MUST
+contain the exact `:<parameter-name>` placeholder in its query fragment and the
+parameter value in canonical scalar form as a distinct token in its
+source reference, delimited by Unicode non-word characters or string
+boundaries.
+
+An accepted candidate MUST contain exactly one positive literal `LIMIT` no
+greater than `max_result_rows`. Each `FROM` or `JOIN` relation reference counts
+toward `max_relations`. These deliberately narrow checks define the operational
+limit semantics; they do not replace consumer-owned structural query parsing or
+authorization.
+
+The consumer remains responsible for structural query parsing, schema and
+function allowlists, placeholder validation, engine-level read-only controls,
+resource limits and execution.
+
+The complete context, validation, authority and qualification rules are defined
+in `docs/SEMANTIC-READ-QUERY.md`.
