@@ -62,6 +62,7 @@ The current public surface includes:
 - structured-output validation;
 - `OllamaBackend` as the reference local backend implementation;
 - `DeepSeekBackend` as an optional remote backend implementation;
+- `OpenAIBackend` as an optional remote backend implementation;
 - deterministic tests using fake backends;
 - opt-in real Ollama integration tests.
 
@@ -165,6 +166,45 @@ A successful DeepSeek transport/structured-output call is not evidence that the
 provider/model composition is semantically qualified for every GiadaWare AI
 capability. Qualification remains capability-specific.
 
+## Optional OpenAI remote backend
+
+GiadaWare AI also provides `OpenAIBackend` as an optional remote implementation
+of the same provider-independent `AIBackend` contract. It is independent from
+both the local Ollama/Qwen reference path and the optional DeepSeek backend and
+is never selected implicitly.
+
+The adapter targets OpenAI's Responses API:
+
+    https://api.openai.com/v1/responses
+
+with `gpt-5.6-luna` as its cost-sensitive default model. Provider details such
+as API key, endpoint, model, authorization header, and OpenAI structured-output
+wire format remain confined to the adapter.
+
+Example:
+
+    from giadaware_ai import AICapabilities
+    from giadaware_ai.backends import OpenAIBackend
+
+    backend = OpenAIBackend(
+        api_key="...",
+        model="gpt-5.6-luna",
+    )
+
+    ai = AICapabilities(backend)
+
+For `response_schema=None`, the adapter requests JSON-object output. When a
+consumer capability supplies a provider-independent JSON Schema, the adapter
+maps it to Responses structured output using
+`text.format.type = "json_schema"` without changing the public backend
+contract or mutating the caller's schema.
+
+No automatic provider routing, local-to-remote fallback, tool calling, web
+search, or autonomous tool execution is introduced by this backend. A
+successful OpenAI transport/structured-output call is not evidence that the
+provider/model composition is semantically qualified for every GiadaWare AI
+capability. Qualification remains capability-specific.
+
 See `docs/ARCHITECTURE.md` for the architectural boundary,
 `docs/BACKEND-CONTRACT.md` for the provider-independent backend primitive and
 schema-constrained JSON rules, `docs/TRANSLATION-CONTRACT.md` for translation
@@ -219,9 +259,10 @@ The real Ollama integration tests are opt-in:
     PYTHONPATH=src \
     python -m unittest discover -s tests/integration -v
 
-The DeepSeek unit tests are fully mocked and perform no network requests. No real
-DeepSeek integration test is enabled by default because remote-provider use is
-optional and requires explicit credentials/cost acceptance.
+The DeepSeek and OpenAI unit tests are fully mocked and perform no network
+requests. No real remote-provider integration test is enabled by default because
+remote-provider use is optional and requires explicit credentials/cost
+acceptance.
 
 ## Non-goals
 
@@ -234,7 +275,7 @@ GiadaWare AI does not provide:
 - RAG;
 - memory;
 - automatic provider routing/fallback;
-- tool execution through the DeepSeek backend;
+- tool execution through remote backends;
 - product-level localization policy;
 - a guarantee that AI output is correct.
 
