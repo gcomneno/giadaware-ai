@@ -37,11 +37,13 @@ Architecture:
             v
     Local or remote inference provider
 
-Ollama is an infrastructure implementation detail.
+Ollama, DeepSeek, OpenAI, provider endpoints, model names, and transport
+envelopes are infrastructure implementation details.
 
-## Reference local deployment
+## Backend/runtime posture
 
-The current reference local development and integration deployment is:
+GiadaWare AI is local-first and local-not-only. The current lightweight local
+reference development and integration deployment is:
 
     Ubuntu host
           |
@@ -58,10 +60,16 @@ The current real-integration model is `qwen2.5:1.5b-instruct`.
 
 Docker Compose is not required for this reference deployment. Containerized,
 remote, or alternative inference backends remain valid implementation choices
-provided they preserve the same semantic capability contract.
+provided they preserve the same semantic capability contract. The repository
+currently includes optional DeepSeek and OpenAI remote backends behind the same
+`AIBackend` boundary.
 
 This deployment choice does not make Ubuntu, Ollama, localhost, or the selected
 model part of consumer domain semantics.
+
+Runtime verification of a backend/model/provider path shows only that a real
+provider call has been observed through the shared backend boundary. It does
+not qualify the composition for arbitrary semantic capabilities.
 
 ## Normative principles
 
@@ -203,6 +211,13 @@ Backends must not mutate consumer state, bypass result validation, leak
 provider-specific objects into semantic result types, or redefine capability
 meaning.
 
+Provider account, billing, credential, or HTTP availability failures are
+operational failures. They are not semantic qualification failures.
+
+Remote credentials are injected by consumers and must remain outside the
+repository. Environment variables or an external local secret store are
+appropriate examples; secret values must never be committed or documented.
+
 ## M0 capability
 
 The first supported semantic capability is:
@@ -270,7 +285,7 @@ M0 proves:
 - public semantic capability contract;
 - typed and validated results;
 - replaceable backend protocol;
-- Ollama-backed implementation;
+- lightweight local reference implementation;
 - fake-backend contract tests;
 - real local integration test;
 - graceful unavailable-AI behaviour;

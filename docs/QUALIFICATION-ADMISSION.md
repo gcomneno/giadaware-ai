@@ -16,6 +16,21 @@ Canonical rule:
 
 Qualification is capability-specific. Passing one capability never grants global model approval.
 
+This contract distinguishes three statuses used elsewhere in the project:
+
+- supported backend: an implemented adapter satisfying the GiadaWare AI backend
+  contract;
+- runtime-verified backend: a backend/model/provider path for which a real
+  provider call has been successfully observed through the shared boundary;
+- semantically qualified composition: a specific
+  `capability x backend/model x operating envelope x evaluation evidence` that
+  has passed its declared evaluation contract and reviewed qualification
+  process.
+
+These statuses must not be conflated. Backend availability does not imply
+semantic qualification, and runtime verification does not imply semantic
+qualification.
+
 ## Architectural boundary
 
 Qualification belongs at the composition/admission boundary, not inside `AIBackend`.
@@ -208,6 +223,11 @@ Runtime admission reads reviewed qualification records, not historical raw logs.
 
 This prevents model self-certification and keeps admission inspectable and reproducible.
 
+Runtime road tests are not qualification records. A road-test observation may
+at most become raw evaluation input where a declared evaluation contract makes
+it relevant. Admission must depend on reviewed qualification evidence and a
+manifest, not merely on a successful provider call.
+
 ## Staleness and invalidation
 
 Qualification becomes stale when an identity element on which the evaluation depends changes materially.
@@ -314,6 +334,7 @@ This contract does not:
 - globally enable or disable a model;
 - assign a universal numeric model score;
 - make structured output proof of semantic competence;
+- make runtime road-test success proof of semantic competence;
 - move provider/model identity into consumer domain semantics;
 - let models certify themselves;
 - define automatic fallback to another provider/model;

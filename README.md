@@ -64,7 +64,8 @@ The current public surface includes:
 - `DeepSeekBackend` as an optional remote backend implementation;
 - `OpenAIBackend` as an optional remote backend implementation;
 - deterministic tests using fake backends;
-- opt-in real Ollama integration tests.
+- opt-in real Ollama integration tests;
+- manually recorded real-provider runtime smoke evidence.
 
 ## Architectural principles
 
@@ -83,6 +84,7 @@ The current public surface includes:
 - Defining a capability does not automatically qualify every provider/model
   composition to perform it correctly.
 - Backend availability does not imply semantic capability qualification.
+- Runtime verification does not imply semantic capability qualification.
 - Remote-provider credentials and transport details stay behind the backend
   boundary.
 - GiadaWare AI does not automatically route or fall back from local to remote
@@ -125,85 +127,31 @@ completed successfully. This is verification evidence for the reference
 deployment, not a minimum hardware or version requirement and not automatic
 qualification for every semantic capability.
 
-## Optional DeepSeek remote backend
+## Provider status
 
-GiadaWare AI also provides `DeepSeekBackend` as an optional remote
-implementation of the same provider-independent `AIBackend` contract. It does
-not replace the reference local Ollama/Qwen path and is never selected
-implicitly.
+Current implemented backends:
 
-The adapter currently targets DeepSeek's Responses API:
+- `OllamaBackend` / `qwen2.5:1.5b-instruct`: lightweight local reference
+  runtime; real runtime path verified.
+- `DeepSeekBackend` / `deepseek-v4-flash`: optional remote backend; real
+  runtime path verified.
+- `OpenAIBackend` / `gpt-5.6-luna`: optional remote backend; real runtime path
+  verified.
 
-    https://api.deepseek.com/responses
+All three use the provider-independent `AIBackend` structured-output boundary.
+Runtime verification means a real provider call has been observed through that
+boundary. It is not semantic qualification.
 
-with `deepseek-v4-flash` as its default model. Provider details such as the API
-key, endpoint, model name, authorization header, and DeepSeek structured-output
-wire format remain confined to the adapter.
+Semantic qualification is always:
 
-Example:
+    capability x backend/model x operating envelope x evaluation evidence
 
-    from giadaware_ai import AICapabilities
-    from giadaware_ai.backends import DeepSeekBackend
+See `docs/PROVIDERS.md` for provider status and configuration guidance, and
+`docs/ROAD-TESTS.md` for the 2026-09-12 three-provider runtime smoke evidence.
 
-    backend = DeepSeekBackend(
-        api_key="...",
-        model="deepseek-v4-flash",
-    )
-
-    ai = AICapabilities(backend)
-
-For `response_schema=None`, the adapter requests DeepSeek JSON-object output.
-When a consumer capability supplies a provider-independent JSON Schema, the
-adapter maps it to DeepSeek Responses structured output using
-`text.format.type = "json_schema"` without changing the public backend
-contract.
-
-No automatic local-to-remote fallback, provider routing, tool calling, web
-search, or autonomous tool execution is introduced by this backend. If such
-behavior is ever needed, it requires a separate capability and authority design.
-
-A successful DeepSeek transport/structured-output call is not evidence that the
-provider/model composition is semantically qualified for every GiadaWare AI
-capability. Qualification remains capability-specific.
-
-## Optional OpenAI remote backend
-
-GiadaWare AI also provides `OpenAIBackend` as an optional remote implementation
-of the same provider-independent `AIBackend` contract. It is independent from
-both the local Ollama/Qwen reference path and the optional DeepSeek backend and
-is never selected implicitly.
-
-The adapter targets OpenAI's Responses API:
-
-    https://api.openai.com/v1/responses
-
-with `gpt-5.6-luna` as its cost-sensitive default model. Provider details such
-as API key, endpoint, model, authorization header, and OpenAI structured-output
-wire format remain confined to the adapter.
-
-Example:
-
-    from giadaware_ai import AICapabilities
-    from giadaware_ai.backends import OpenAIBackend
-
-    backend = OpenAIBackend(
-        api_key="...",
-        model="gpt-5.6-luna",
-    )
-
-    ai = AICapabilities(backend)
-
-For `response_schema=None`, the adapter requests JSON-object output. When a
-consumer capability supplies a provider-independent JSON Schema, the adapter
-maps it to Responses structured output using
-`text.format.type = "json_schema"` without changing the public backend
-contract or mutating the caller's schema.
-
-No automatic provider routing, local-to-remote fallback, tool calling, web
-search, or autonomous tool execution is introduced by this backend. A
-successful OpenAI transport/structured-output call is not evidence that the
-provider/model composition is semantically qualified for every GiadaWare AI
-capability. Qualification remains capability-specific.
+Remote credentials are injected into adapters by consumers and must remain
+outside the repository. Provider account/billing availability is an operational
+prerequisite for remote calls, not a semantic capability concern.
 
 See `docs/ARCHITECTURE.md` for the architectural boundary,
 `docs/BACKEND-CONTRACT.md` for the provider-independent backend primitive and
@@ -263,6 +211,12 @@ The DeepSeek and OpenAI unit tests are fully mocked and perform no network
 requests. No real remote-provider integration test is enabled by default because
 remote-provider use is optional and requires explicit credentials/cost
 acceptance.
+
+Capability-specific real-runtime evaluation paths, such as the semantic
+read-query qualification corpus, are opt-in and documented with their
+capability contracts. Manually recorded real-provider runtime smoke evidence is
+kept separately in `docs/ROAD-TESTS.md` and must not be treated as semantic
+qualification.
 
 ## Non-goals
 

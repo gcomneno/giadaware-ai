@@ -65,9 +65,54 @@ A backend may validate provider-independent configuration needed to serialize or
 - `response_schema is None` -> Ollama `format: "json"`;
 - `response_schema is not None` -> Ollama `format: <JSON Schema object>`.
 
-The Ollama field name `format` is an implementation detail and is not part of the public `AIBackend` contract.
+The adapter sends a non-streaming `/api/chat` request with the configured
+model, a system message containing `system_prompt`, and a user message
+containing `user_prompt`.
+
+The Ollama field name `format` and `/api/chat` envelope are implementation
+details and are not part of the public `AIBackend` contract.
 
 The caller-owned schema is read and copied for provider payload construction; it is not mutated.
+
+## DeepSeek mapping
+
+`DeepSeekBackend` translates the provider-independent request internally:
+
+- `response_schema is None` -> `text.format.type = "json_object"`;
+- `response_schema is not None` -> `text.format.type = "json_schema"`,
+  `text.format.name = "giadaware_ai_response"`, and
+  `text.format.schema = <JSON Schema object>`.
+
+The adapter sends a non-streaming `/responses` request with the configured
+model, `instructions` set from `system_prompt`, and `input` set from
+`user_prompt`.
+
+Authorization, endpoint construction, Responses envelope parsing, and
+`output_text` extraction are adapter details and must not leak into consumer
+domain semantics.
+
+The caller-owned schema is read and copied for provider payload construction;
+it is not mutated.
+
+## OpenAI mapping
+
+`OpenAIBackend` translates the provider-independent request internally:
+
+- `response_schema is None` -> `text.format.type = "json_object"`;
+- `response_schema is not None` -> `text.format.type = "json_schema"`,
+  `text.format.name = "giadaware_ai_response"`, and
+  `text.format.schema = <JSON Schema object>`.
+
+The adapter sends a non-streaming `/responses` request with the configured
+model, `instructions` set from `system_prompt`, and `input` set from
+`user_prompt`.
+
+Authorization, endpoint construction, Responses envelope parsing, and
+`output_text` extraction are adapter details and must not leak into consumer
+domain semantics.
+
+The caller-owned schema is read and copied for provider payload construction;
+it is not mutated.
 
 ## Error semantics
 
@@ -107,6 +152,9 @@ Forbidden interpretation:
 
 A JSON Schema can constrain representation. It does not establish factual truth, business validity, provenance, approval, persistence authority, or canonical status.
 
+Schema-constrained JSON improves structural compliance only. It does not make
+AI output authoritative, true, safe, or semantically qualified.
+
 Concrete semantic capabilities and consuming applications remain responsible for deterministic validation and all application decisions.
 
 ## Non-goals
@@ -114,11 +162,14 @@ Concrete semantic capabilities and consuming applications remain responsible for
 This contract does not:
 
 - expose Ollama-specific options to consumers;
+- expose DeepSeek-specific options to consumers;
+- expose OpenAI-specific options to consumers;
 - validate arbitrary JSON Schema semantics inside GiadaWare AI;
 - add consumer-domain schemas to GiadaWare AI core;
 - add prompt tuning for Grocery Deal Intelligence or any other consumer;
 - auto-repair malformed or semantically invalid model output;
 - change models or provider selection;
+- add automatic routing or fallback;
 - make structured output authoritative.
 
 ## Design principle
