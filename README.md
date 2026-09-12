@@ -60,7 +60,8 @@ The current public surface includes:
 - `SourceClaim`, `ClaimSupport`, and `Severity`;
 - explicit AI failure types;
 - structured-output validation;
-- `OllamaBackend` as one replaceable backend implementation;
+- `OllamaBackend` as the reference local backend implementation;
+- `DeepSeekBackend` as an optional remote backend implementation;
 - deterministic tests using fake backends;
 - opt-in real Ollama integration tests.
 
@@ -80,6 +81,11 @@ The current public surface includes:
   authority or canonical status.
 - Defining a capability does not automatically qualify every provider/model
   composition to perform it correctly.
+- Backend availability does not imply semantic capability qualification.
+- Remote-provider credentials and transport details stay behind the backend
+  boundary.
+- GiadaWare AI does not automatically route or fall back from local to remote
+  providers.
 
 ## Reference local runtime
 
@@ -117,6 +123,47 @@ Ollama `0.32.15` running on `127.0.0.1:11434`,
 completed successfully. This is verification evidence for the reference
 deployment, not a minimum hardware or version requirement and not automatic
 qualification for every semantic capability.
+
+## Optional DeepSeek remote backend
+
+GiadaWare AI also provides `DeepSeekBackend` as an optional remote
+implementation of the same provider-independent `AIBackend` contract. It does
+not replace the reference local Ollama/Qwen path and is never selected
+implicitly.
+
+The adapter currently targets DeepSeek's Responses API:
+
+    https://api.deepseek.com/responses
+
+with `deepseek-v4-flash` as its default model. Provider details such as the API
+key, endpoint, model name, authorization header, and DeepSeek structured-output
+wire format remain confined to the adapter.
+
+Example:
+
+    from giadaware_ai import AICapabilities
+    from giadaware_ai.backends import DeepSeekBackend
+
+    backend = DeepSeekBackend(
+        api_key="...",
+        model="deepseek-v4-flash",
+    )
+
+    ai = AICapabilities(backend)
+
+For `response_schema=None`, the adapter requests DeepSeek JSON-object output.
+When a consumer capability supplies a provider-independent JSON Schema, the
+adapter maps it to DeepSeek Responses structured output using
+`text.format.type = "json_schema"` without changing the public backend
+contract.
+
+No automatic local-to-remote fallback, provider routing, tool calling, web
+search, or autonomous tool execution is introduced by this backend. If such
+behavior is ever needed, it requires a separate capability and authority design.
+
+A successful DeepSeek transport/structured-output call is not evidence that the
+provider/model composition is semantically qualified for every GiadaWare AI
+capability. Qualification remains capability-specific.
 
 See `docs/ARCHITECTURE.md` for the architectural boundary,
 `docs/BACKEND-CONTRACT.md` for the provider-independent backend primitive and
@@ -172,6 +219,10 @@ The real Ollama integration tests are opt-in:
     PYTHONPATH=src \
     python -m unittest discover -s tests/integration -v
 
+The DeepSeek unit tests are fully mocked and perform no network requests. No real
+DeepSeek integration test is enabled by default because remote-provider use is
+optional and requires explicit credentials/cost acceptance.
+
 ## Non-goals
 
 GiadaWare AI does not provide:
@@ -182,6 +233,8 @@ GiadaWare AI does not provide:
 - MCP;
 - RAG;
 - memory;
+- automatic provider routing/fallback;
+- tool execution through the DeepSeek backend;
 - product-level localization policy;
 - a guarantee that AI output is correct.
 
