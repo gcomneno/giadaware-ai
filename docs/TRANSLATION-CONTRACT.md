@@ -93,6 +93,12 @@ A provider/model may satisfy transport and JSON-schema requirements while still 
 
 No reference model is declared translation-qualified merely by this contract.
 
+The 2026-09-12 three-provider runtime road test requested an Italian result
+message as part of a shared structured-output smoke contract. That road test did
+not call `TranslateTextCapability`, did not evaluate meaning preservation from a
+source language to a target language, and did not qualify the Translation
+capability for any backend/model composition.
+
 ## Static localization boundary
 
 GiadaWare AI does not own product localization.
