@@ -19,6 +19,7 @@ class OllamaBackend:
         model: str,
         base_url: str = "http://localhost:11434",
         timeout: float = 120.0,
+        think: bool | None = None,
     ) -> None:
         if not model.strip():
             raise AIConfigurationError(
@@ -33,6 +34,7 @@ class OllamaBackend:
         self._model = model
         self._url = base_url.rstrip("/") + "/api/chat"
         self._timeout = timeout
+        self._think = think
 
     def generate_json(
         self,
@@ -70,6 +72,9 @@ class OllamaBackend:
                 },
             ],
         }
+
+        if self._think is not None:
+            payload["think"] = self._think
 
         try:
             request_data = json.dumps(payload).encode("utf-8")

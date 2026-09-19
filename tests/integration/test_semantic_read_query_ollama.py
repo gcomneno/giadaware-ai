@@ -13,6 +13,60 @@ from giadaware_ai import (
     SemanticReadQueryRequest,
 )
 from giadaware_ai.backends import OllamaBackend
+from unittest.mock import patch
+
+
+def _qualification_think() -> bool | None:
+    value = os.environ.get(
+        "GIADAWARE_AI_QUALIFICATION_THINK"
+    )
+    if value is None:
+        return None
+    if value == "0":
+        return False
+    if value == "1":
+        return True
+    raise ValueError(
+        "GIADAWARE_AI_QUALIFICATION_THINK must be 0 or 1"
+    )
+
+
+class QualificationThinkConfigurationTests(unittest.TestCase):
+    def test_absent_override_preserves_backend_default(self):
+        with patch.dict(
+            os.environ,
+            {},
+            clear=True,
+        ):
+            self.assertIsNone(_qualification_think())
+
+    def test_zero_disables_thinking(self):
+        with patch.dict(
+            os.environ,
+            {"GIADAWARE_AI_QUALIFICATION_THINK": "0"},
+            clear=True,
+        ):
+            self.assertIs(_qualification_think(), False)
+
+    def test_one_enables_thinking(self):
+        with patch.dict(
+            os.environ,
+            {"GIADAWARE_AI_QUALIFICATION_THINK": "1"},
+            clear=True,
+        ):
+            self.assertIs(_qualification_think(), True)
+
+    def test_invalid_override_fails_closed(self):
+        with patch.dict(
+            os.environ,
+            {"GIADAWARE_AI_QUALIFICATION_THINK": "false"},
+            clear=True,
+        ):
+            with self.assertRaisesRegex(
+                ValueError,
+                "GIADAWARE_AI_QUALIFICATION_THINK must be 0 or 1",
+            ):
+                _qualification_think()
 
 
 @unittest.skipUnless(
@@ -105,6 +159,7 @@ class SemanticReadQueryOllamaQualificationTests(unittest.TestCase):
                 "GIADAWARE_AI_QUALIFICATION_BASE_URL",
                 "http://localhost:11434",
             ),
+            think=_qualification_think(),
         )
         cls.interpreter = SemanticReadQueryInterpreter(
             backend,

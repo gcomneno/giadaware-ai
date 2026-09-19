@@ -70,6 +70,63 @@ class OllamaBackendStructuredOutputTests(unittest.TestCase):
         self.assertEqual(schema, original_schema)
         self.assertEqual(result, {"name": "widget", "count": 3})
 
+    def test_default_omits_think_from_payload(self):
+        backend = OllamaBackend(model="test-model")
+
+        with patch(
+            "urllib.request.urlopen",
+            return_value=self._response('{"ok": true}'),
+        ) as urlopen:
+            backend.generate_json(
+                system_prompt="system",
+                user_prompt="user",
+            )
+
+        request = urlopen.call_args.args[0]
+        payload = json.loads(request.data.decode("utf-8"))
+
+        self.assertNotIn("think", payload)
+
+    def test_explicit_false_disables_thinking(self):
+        backend = OllamaBackend(
+            model="test-model",
+            think=False,
+        )
+
+        with patch(
+            "urllib.request.urlopen",
+            return_value=self._response('{"ok": true}'),
+        ) as urlopen:
+            backend.generate_json(
+                system_prompt="system",
+                user_prompt="user",
+            )
+
+        request = urlopen.call_args.args[0]
+        payload = json.loads(request.data.decode("utf-8"))
+
+        self.assertIs(payload["think"], False)
+
+    def test_explicit_true_enables_thinking(self):
+        backend = OllamaBackend(
+            model="test-model",
+            think=True,
+        )
+
+        with patch(
+            "urllib.request.urlopen",
+            return_value=self._response('{"ok": true}'),
+        ) as urlopen:
+            backend.generate_json(
+                system_prompt="system",
+                user_prompt="user",
+            )
+
+        request = urlopen.call_args.args[0]
+        payload = json.loads(request.data.decode("utf-8"))
+
+        self.assertIs(payload["think"], True)
+
     def test_malformed_model_json_preserves_invalid_response_error(self):
         backend = OllamaBackend(model="test-model")
 

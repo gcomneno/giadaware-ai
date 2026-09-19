@@ -251,7 +251,9 @@ python -m unittest discover \
 Optional infrastructure overrides are:
 
 - `GIADAWARE_AI_QUALIFICATION_MODEL`;
-- `GIADAWARE_AI_QUALIFICATION_BASE_URL`.
+- `GIADAWARE_AI_QUALIFICATION_BASE_URL`;
+- `GIADAWARE_AI_QUALIFICATION_THINK` (`0` disables thinking, `1` enables it;
+  when absent, the backend default is preserved).
 
 A failing qualification does not justify weakening assertions or silently
 accepting the composition. It means that the tested backend/model/context
@@ -260,6 +262,11 @@ combination is not qualified for the declared envelope.
 The 2026-09-09 reference evaluation of `qwen2.5:1.5b-instruct` is recorded in
 `docs/qualification/semantic-read-query-qwen2.5-1.5b-2026-09-09.md`. That
 composition is explicitly **not qualified** for this capability.
+
+The 2026-09-19 evaluation of `qwen3.5:2b-q4_K_M`, with thinking disabled, is
+recorded in
+`docs/qualification/semantic-read-query-qwen3.5-2b-q4_K_M-2026-09-19.md`.
+That composition is also explicitly **not qualified** for this capability.
 
 ## Non-goals
 
