@@ -147,7 +147,7 @@ Semantic qualification is always:
     capability x backend/model x operating envelope x evaluation evidence
 
 See `docs/PROVIDERS.md` for provider status and configuration guidance, and
-`docs/ROAD-TESTS.md` for the 2026-09-12 three-provider runtime smoke evidence.
+`docs/ROAD-TESTS.md` for recorded runtime smoke evidence.
 
 Remote credentials are injected into adapters by consumers and must remain
 outside the repository. Provider account/billing availability is an operational

@@ -119,6 +119,6 @@ model for the current host.
 ## Related documents
 
 - `docs/BACKEND-CONTRACT.md` defines the provider-independent boundary.
-- `docs/ROAD-TESTS.md` records the 2026-09-12 three-provider runtime road test.
+- `docs/ROAD-TESTS.md` records historical runtime road-test evidence.
 - `docs/QUALIFICATION-ADMISSION.md` defines semantic qualification and
   admission rules.

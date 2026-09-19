@@ -75,6 +75,57 @@ qualification evidence.
 No account balances, payment details, API keys, or secret values are part of
 this record.
 
+## 2026-09-19 OpenAI GPT-6 Astra structured-output smoke
+
+### Purpose
+
+This road test checked whether `OpenAIBackend` / `gpt-6-astra` could make a
+real call through the shared `AIBackend.generate_json()` schema-constrained
+structured-output boundary.
+
+The call used the existing OpenAI backend implementation without production
+code changes.
+
+### Smoke contract
+
+The model was asked to calculate:
+
+```text
+987654321 * 123456789
+```
+
+using a JSON Schema requiring one integer field named `result`.
+
+Expected result:
+
+```text
+121932631112635269
+```
+
+Observed result:
+
+```json
+{"result": 121932631112635269}
+```
+
+The real provider call completed successfully and the deterministic arithmetic
+check passed.
+
+This observation establishes runtime verification for the tested
+`OpenAIBackend` / `gpt-6-astra` provider path. It does not qualify
+`gpt-6-astra` for any public semantic capability and is not evidence of general
+reasoning ability, factual reliability, safety, performance, current pricing,
+or semantic competence.
+
+### Operational constraints
+
+- exactly one real provider request was allowed;
+- no retry was performed;
+- schema-constrained structured output was required;
+- credentials remained outside the repository;
+- no production code change was required;
+- no semantic qualification is claimed.
+
 ## Qualification boundary
 
 Road-test observations may at most become raw evaluation inputs where a
