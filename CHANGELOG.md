@@ -32,5 +32,15 @@
 
 ### Changed
 
+- Distribution hardening: complete Apache-2.0 terms with the existing project
+  attribution retained; license metadata compatible with setuptools >=68;
+  explicit license inclusion and package discovery.
+- Packaging CI now checks wheel/sdist contents, reconstructs an identical wheel
+  from the sdist, runs public API smoke tests and all unit tests in isolated
+  wheel installations, and retains artifacts with hashes and source provenance.
+- U3.1 distribution version `0.0.2` is approved for local qualification.
+  Artifacts are LOCAL UNCOMMITTED QUALIFICATION CANDIDATES; no commit, tag,
+  push, GitHub release, or PyPI publication is authorized. No runtime AI
+  behavior changes accompany this version decision. See `docs/DISTRIBUTION.md`.
 - Prose naturalization remains experiment-only with the current decision held
   at `HOLD`; no public naturalization capability is exposed.

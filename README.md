@@ -195,6 +195,12 @@ Build a wheel from a checkout:
 
 Then install the generated wheel into an isolated environment.
 
+For offline artifact qualification, isolated consumer tests, license checks,
+sdist reconstruction, and retained provenance, see
+[Distribution qualification](docs/DISTRIBUTION.md). Qualification candidates
+are not published releases. Version `0.0.2` is approved for U3.1 local
+qualification; publication remains unauthorized, as documented there.
+
 ## Testing
 
 Run deterministic unit tests without an AI runtime:

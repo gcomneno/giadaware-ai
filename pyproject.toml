@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "giadaware-ai"
-version = "0.0.1"
+version = "0.0.2"
 description = "Pluggable read-only AI capabilities for GiadaWare software"
 requires-python = ">=3.11"
-license = "Apache-2.0"
+license = {file = "LICENSE"}
 readme = "README.md"
 keywords = ["ai", "ollama", "local-ai", "giadaware"]
 
@@ -19,8 +19,12 @@ classifiers = [
     "Typing :: Typed",
 ]
 
+[tool.setuptools]
+license-files = ["LICENSE", "NOTICE*"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["giadaware_ai", "giadaware_ai.*"]
 
 [tool.setuptools.package-data]
 giadaware_ai = ["py.typed"]

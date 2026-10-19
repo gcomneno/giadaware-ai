@@ -1,0 +1,5 @@
+include LICENSE
+include CHANGELOG.md
+include scripts/qualify_distribution.py
+include tests/packaging/smoke_installed.py
+recursive-include tests/unit *.py
